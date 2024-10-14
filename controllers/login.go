@@ -56,6 +56,8 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	c.SetCookie("token", token, 3600, "/", "", true, true)
+
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
 		"token":   token,
