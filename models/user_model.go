@@ -18,6 +18,8 @@ type UserModel struct {
 	Name      string             `bson:"name" json:"name"`
 	Email     string             `bson:"email" json:"email"`
 	Password  string             `bson:"password" json:"-"`
+	Tagline   string             `bson:"tagline" json:"tagline,omitempty"`
+	ProfileURL string            `bson:"profile_url" json:"profile_url,omitempty"`
 	Links     []Links            `bson:"links,omitempty" json:"links,omitempty"`
 	CreatedAt time.Time          `bson:"created_at" json:"created_at"`
 	UpdatedAt time.Time          `bson:"updated_at" json:"updated_at"`
