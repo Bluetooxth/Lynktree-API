@@ -45,6 +45,7 @@ func main() {
 	server.POST("/api/user/signup", controllers.Signup)
 	server.POST("/api/user/login", controllers.Login)
 	server.GET("/api/user/get-user/:username", controllers.GetUser)
+	server.GET("/api/user/getuser-details", controllers.GetUserDetails)
 	server.PUT("/api/user/update-user/:id", controllers.UpdateUser)
 	server.DELETE("/api/user/delete-user/:id", controllers.DeleteUser)
 

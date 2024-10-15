@@ -5,8 +5,8 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
+	"go.mongodb.org/mongo-driver/bson"
 	"lynktree/config"
 	"lynktree/models"
 	"lynktree/utils"
@@ -21,9 +21,7 @@ func Login(c *gin.Context) {
 	var req LoginRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -31,36 +29,28 @@ func Login(c *gin.Context) {
 	var user models.UserModel
 
 	err := collection.FindOne(context.TODO(), bson.M{"email": req.Email}).Decode(&user)
-
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid email or password",
-		})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
-
 	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{
-			"error": "Invalid password",
-		})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
 	}
 
-	token, err := utils.GenerateJWT(user.Email, user.Username, user.Name)
+	token, err := utils.GenerateJWT(user.Email, user.Username, user.Name, user.ID.Hex())
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Failed to generate token",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
 		return
 	}
 
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:    "token",
 		Value:   token,
-		MaxAge: 3600,
-		Path:   "/",
+		MaxAge:  3600,
+		Path:    "/",
 	})
 
 	c.JSON(http.StatusOK, gin.H{

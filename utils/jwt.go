@@ -9,17 +9,19 @@ import (
 )
 
 type JWTClaims struct {
+	ID       string `json:"id"`
 	Email    string `json:"email"`
 	Username string `json:"username"`
 	Name     string `json:"name"`
 	jwt.RegisteredClaims
 }
 
-func GenerateJWT(email, username, name string) (string, error) {
+func GenerateJWT(email, username, name, id string) (string, error) {
 	_ = godotenv.Load()
 	secret := os.Getenv("JWT_SECRET")
 
 	claims := JWTClaims{
+		ID:       id,
 		Email:    email,
 		Username: username,
 		Name:     name,
@@ -32,7 +34,6 @@ func GenerateJWT(email, username, name string) (string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
 	signedToken, err := token.SignedString([]byte(secret))
-
 	if err != nil {
 		return "", err
 	}
