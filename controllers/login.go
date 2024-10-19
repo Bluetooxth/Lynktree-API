@@ -51,9 +51,9 @@ func Login(c *gin.Context) {
         Value:    token,
         MaxAge:   3600,
         Path:     "/",
-        HttpOnly: false,
+        HttpOnly: true,
         Secure:   true,
-        SameSite: http.SameSiteLaxMode,
+        SameSite: http.SameSiteNoneMode,
     })
 
     c.JSON(http.StatusOK, gin.H{
