@@ -15,51 +15,54 @@ import (
 )
 
 type LoginRequest struct {
-    Email    string `json:"email" binding:"required,email"`
-    Password string `json:"password" binding:"required,min=6,max=100"`
+	Email    string `json:"email" binding:"required,email"`
+	Password string `json:"password" binding:"required,min=6,max=100"`
 }
 
 func Login(c *gin.Context) {
-    var req LoginRequest
+	var req LoginRequest
 
-    if err := c.ShouldBindJSON(&req); err != nil {
-        c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-        return
-    }
+	if err := c.ShouldBindJSON(&req); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
 
-    collection := config.DB.Collection("users")
-    var user models.UserModel
+	collection := config.DB.Collection("users")
+	var user models.UserModel
 
-    err := collection.FindOne(context.TODO(), bson.M{"email": req.Email}).Decode(&user)
-    if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
-        return
-    }
+	err := collection.FindOne(context.TODO(), bson.M{"email": req.Email}).Decode(&user)
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}
 
-    err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
-    if err != nil {
-        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
-        return
-    }
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(req.Password))
+	if err != nil {
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
+		return
+	}
 
-    token, err := utils.GenerateJWT(user.Username, user.ID.Hex())
-    if err != nil {
-        c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
-        return
-    }
+	token, err := utils.GenerateJWT(user.Username, user.ID.Hex())
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to generate token"})
+		return
+	}
 
-    http.SetCookie(c.Writer, &http.Cookie{
-        Name:     "token",
-        Value:    token,
-        Expires:   time.Now().Add(time.Hour *24),
-        HttpOnly: true,
-    })
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    token,
+		Expires:  time.Now().Add(24 * time.Hour),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   true,
+		SameSite: http.SameSiteNoneMode,
+	})
 
-    c.JSON(http.StatusOK, gin.H{
-        "message": "Login successful",
-        "token":   token,
-        "user": gin.H{
-            "username": user.Username,
-        },
-    })
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"token":   token,
+		"user": gin.H{
+			"username": user.Username,
+		},
+	})
 }
