@@ -1,15 +1,17 @@
 package controllers
 
 import (
-    "context"
-    "net/http"
+	"context"
+	"net/http"
+	"time"
 
-    "github.com/gin-gonic/gin"
-    "go.mongodb.org/mongo-driver/bson"
-    "golang.org/x/crypto/bcrypt"
-    "lynktree/config"
-    "lynktree/models"
-    "lynktree/utils"
+	"lynktree/config"
+	"lynktree/models"
+	"lynktree/utils"
+
+	"github.com/gin-gonic/gin"
+	"go.mongodb.org/mongo-driver/bson"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type LoginRequest struct {
@@ -49,11 +51,8 @@ func Login(c *gin.Context) {
     http.SetCookie(c.Writer, &http.Cookie{
         Name:     "token",
         Value:    token,
-        MaxAge:   3600,
-        Path:     "/",
-        HttpOnly: false,
-        Secure:   true,
-        SameSite: http.SameSiteNoneMode,
+        Expires:   time.Now().Add(time.Hour *24),
+        HttpOnly: true,
     })
 
     c.JSON(http.StatusOK, gin.H{
