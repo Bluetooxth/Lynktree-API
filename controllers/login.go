@@ -47,10 +47,13 @@ func Login(c *gin.Context) {
     }
 
     http.SetCookie(c.Writer, &http.Cookie{
-        Name:   "token",
-        Value:  token,
-        MaxAge: 3600,
-        Path:   "/",
+        Name:     "token",
+        Value:    token,
+        MaxAge:   3600,
+        Path:     "/",
+        HttpOnly: true,
+        Secure:   true,
+        SameSite: http.SameSiteLaxMode,
     })
 
     c.JSON(http.StatusOK, gin.H{
