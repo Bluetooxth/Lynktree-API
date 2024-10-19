@@ -1,31 +1,15 @@
 package main
 
 import (
-	"net/http"
 	"os"
 
 	"lynktree/config"
 	"lynktree/controllers"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
-
-func corsMiddleware() gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, PATCH, OPTIONS")
-		c.Writer.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization, Set-Cookie")
-
-		if c.Request.Method == "OPTIONS" {
-			c.AbortWithStatus(http.StatusNoContent)
-			return
-		}
-
-		c.Next()
-	}
-}
 
 func main() {
 	_ = godotenv.Load()
@@ -34,7 +18,13 @@ func main() {
 
 	server := gin.Default()
 
-	server.Use(corsMiddleware())
+	server.Use(cors.New(cors.Config{
+		AllowOrigins: []string{"https://lynktree.vercel.app"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowHeaders: []string{"Content-Type", "Authorization"},
+		ExposeHeaders: []string{"Content-Length"},
+		AllowCredentials: true,
+	}))
 
 	server.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{

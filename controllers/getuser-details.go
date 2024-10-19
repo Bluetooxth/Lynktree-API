@@ -1,50 +1,45 @@
 package controllers
 
 import (
-	"context"
-	"net/http"
-	"os"
+    "context"
+    "net/http"
 
-	"github.com/gin-gonic/gin"
-	"github.com/golang-jwt/jwt/v4"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"lynktree/config"
-	"lynktree/utils"
-	"lynktree/models"
+    "github.com/gin-gonic/gin"
+    "go.mongodb.org/mongo-driver/bson"
+    "go.mongodb.org/mongo-driver/bson/primitive"
+    "lynktree/config"
+    "lynktree/models"
+    "lynktree/utils"
 )
 
 func GetUserDetails(c *gin.Context) {
-	tokenString, err := c.Cookie("token")
-	if err != nil {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "No token provided"})
-		return
-	}
+    tokenString, err := c.Cookie("token")
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Token not found in cookies"})
+        return
+    }
 
-	claims := &utils.JWTClaims{}
-	token, err := jwt.ParseWithClaims(tokenString, claims, func(token *jwt.Token) (interface{}, error) {
-		secret := []byte(os.Getenv("JWT_SECRET"))
-		return secret, nil
-	})
+    token, claims, err := utils.ValidateJWT(tokenString)
+    if err != nil || !token.Valid {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid or expired token"})
+        return
+    }
 
-	if err != nil || !token.Valid {
-		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid token"})
-		return
-	}
+    userID := claims.ID
+    collection := config.DB.Collection("users")
+    var user models.UserModel
 
-	userID, err := primitive.ObjectIDFromHex(claims.ID)
-	if err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid user ID"})
-		return
-	}
+    objectID, err := primitive.ObjectIDFromHex(userID)
+    if err != nil {
+        c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid user ID"})
+        return
+    }
 
-	collection := config.DB.Collection("users")
-	var user models.UserModel
-	err = collection.FindOne(context.Background(), bson.M{"_id": userID}).Decode(&user)
-	if err != nil {
-		c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
-		return
-	}
+    err = collection.FindOne(context.Background(), bson.M{"_id": objectID}).Decode(&user)
+    if err != nil {
+        c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
+        return
+    }
 
-	c.JSON(http.StatusOK, user)
+    c.JSON(http.StatusOK, user)
 }
