@@ -54,8 +54,8 @@ func Login(c *gin.Context) {
 		Expires:  time.Now().Add(24 * time.Hour),
 		Path:     "/",
 		HttpOnly: true,
-		Secure:   false,
-		SameSite:http.SameSiteLaxMode,
+        Secure:   true,
+        SameSite: http.SameSiteNoneMode,
 	})
 
 	c.JSON(http.StatusOK, gin.H{
