@@ -55,7 +55,7 @@ func Login(c *gin.Context) {
 		Path:     "/",
 		HttpOnly: true,
         Secure:   true,
-        SameSite: http.SameSiteStrictMode,
+        SameSite: http.SameSiteLaxMode,
 	})
 
 	c.JSON(http.StatusOK, gin.H{
