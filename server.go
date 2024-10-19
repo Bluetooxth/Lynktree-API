@@ -20,7 +20,7 @@ func main() {
 
 	server.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"https://lynktree.vercel.app"},
-		AllowMethods: []string{"GET", "POST", "PUT", "DELETE"},
+		AllowMethods: []string{"GET", "POST", "PUT", "DELETE","OPTIONS"},
 		AllowHeaders: []string{"Content-Type", "Authorization"},
 		ExposeHeaders: []string{"Content-Length"},
 		AllowCredentials: true,
