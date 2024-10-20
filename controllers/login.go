@@ -4,13 +4,12 @@ import (
 	"context"
 	"net/http"
 
-	"lynktree/config"
-	"lynktree/models"
-	"lynktree/utils"
-
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
 	"golang.org/x/crypto/bcrypt"
+	"lynktree/config"
+	"lynktree/models"
+	"lynktree/utils"
 )
 
 type LoginRequest struct {
@@ -29,7 +28,7 @@ func Login(c *gin.Context) {
 	collection := config.DB.Collection("users")
 	var user models.UserModel
 
-	err := collection.FindOne(context.TODO(), bson.M{"email": req.Email}).Decode(&user)
+	err := collection.FindOne(context.Background(), bson.M{"email": req.Email}).Decode(&user)
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid email or password"})
 		return
@@ -47,7 +46,6 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteLaxMode)
 	c.SetCookie("token", token, 3600, "/", "", true, true)
 
 	c.JSON(http.StatusOK, gin.H{

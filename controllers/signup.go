@@ -6,15 +6,12 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"golang.org/x/crypto/bcrypt"
 	"lynktree/config"
 	"lynktree/models"
 )
-
-var validate = validator.New()
 
 type SignupRequest struct {
 	Username string `json:"username" binding:"required,min=3,max=20"`
@@ -27,17 +24,13 @@ func Signup(c *gin.Context) {
 	var req SignupRequest
 
 	if err := c.ShouldBindJSON(&req); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": err.Error(),
-		})
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	passwordHash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcrypt.DefaultCost)
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Unable to hash password",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unable to hash password"})
 		return
 	}
 
@@ -46,9 +39,7 @@ func Signup(c *gin.Context) {
 	err = collection.FindOne(context.TODO(), bson.M{"email": req.Email}).Decode(&existingUser)
 
 	if err == nil {
-		c.JSON(http.StatusConflict, gin.H{
-			"error": "User already exists with this email",
-		})
+		c.JSON(http.StatusConflict, gin.H{"error": "User already exists with this email"})
 		return
 	}
 
@@ -66,13 +57,9 @@ func Signup(c *gin.Context) {
 	_, err = collection.InsertOne(context.TODO(), user)
 
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error": "Error during signup",
-		})
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Error during signup"})
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"message": "User signup successful",
-	})
+	c.JSON(http.StatusCreated, gin.H{"message": "User signup successful"})
 }
