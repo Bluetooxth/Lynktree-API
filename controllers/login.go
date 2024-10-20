@@ -46,7 +46,7 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	c.SetSameSite(http.SameSiteNoneMode)
+	c.SetSameSite(http.SameSiteStrictMode)
 	c.SetCookie("token", token, 3600, "/", "", true, true)
 
 	c.JSON(http.StatusOK, gin.H{
