@@ -19,7 +19,7 @@ func main() {
 	server := gin.Default()
 
 	server.Use(cors.New(cors.Config{
-		AllowOrigins: []string{"https://lynktree.vercel.app"},
+		AllowOrigins: []string{"https://lynktree.vercel.app","https://lynktree.netlify.app","http://localhost:3000"},
 		AllowMethods: []string{"GET", "POST", "PUT", "DELETE","OPTIONS"},
 		AllowHeaders: []string{"Content-Type", "Authorization"},
 		ExposeHeaders: []string{"Content-Length"},
