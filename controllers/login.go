@@ -50,15 +50,14 @@ func Login(c *gin.Context) {
 		Name:     "token",
 		Value:    token,
 		Path:     "/",
+		Domain:   "lynktree.vercel.app",
 		MaxAge:   24 * 60 * 60,
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteNoneMode,
 	}
+
 	http.SetCookie(c.Writer, cookie)
-	c.JSON(200, gin.H{
-		"message": "Cookie set",
-	})
 
 	c.JSON(http.StatusOK, gin.H{
 		"message": "Login successful",
